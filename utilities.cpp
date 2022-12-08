@@ -1,4 +1,5 @@
 #include "utilities.hpp"
+#include "fft.hpp"
 
 using namespace std::chrono;
 
@@ -10,6 +11,7 @@ TIMEIT function: to time the execution time of a specified parameter-given routi
                 * output vector for transform
                 * ostream: where to print the results
 -----------------------------------------------------*/
+template<class C>
 void TimeIt(void (C::*func)(),
             C& obj,
             std::ostream &out)
@@ -22,6 +24,9 @@ void TimeIt(void (C::*func)(),
     out << "Time required to run: "<<duration.count() << " microseconds."<< std::endl;
 
 }
+
+
+template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(), FFTGenerator&, std::ostream&);
 
 /*-----------------------------------------------------
 PRINTIT function: print the result of a specified vector
