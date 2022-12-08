@@ -25,7 +25,7 @@ void Recursive_FFT(vector<complex<double>>& A, int N)
     Recursive_FFT(A_1, N/2);
 
     for(size_t k=0; k*2<N; ++k){
-      complex<double> Wn = std::polar(1.0, 2 * pi * k/N);
+      complex<double> Wn = std::polar(1.0, -2 * pi * k/N);
       A[k]=A_0[k]+(Wn*A_1[k]);
       A[k+N/2]=A_0[k]-(Wn*A_1[k]);
     }
