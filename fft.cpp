@@ -22,8 +22,8 @@ void FFTGenerator::Recursive_FFT(){
         return;
     }
 
-    std::complex<double> w (1.0,0.0);
-    const std::complex<double> w_n(std::polar(1.0,2*std::numbers::pi/(this)->getN()));
+    //std::complex<double> w (1.0,0.0);
+    //const std::complex<double> w_n(std::polar(1.0,-2*std::numbers::pi/(this)->getN()));
 
     std::vector<std::complex<double>> even (n/2);
     std::vector<std::complex<double>> odd  (n/2);
@@ -39,23 +39,25 @@ void FFTGenerator::Recursive_FFT(){
     FFT_0.Recursive_FFT();
     FFT_1.Recursive_FFT();
 
-    /*std::vector<std::complex<double>>y_0(n/2);
-    std::vector<std::complex<double>>y_1(n/2);
-    Recursive_FFT(even, n/2, y_0);
-    Recursive_FFT(odd, n/2, y_1);*/
+    //std::vector<std::complex<double>>y_0(n/2);
+    //std::vector<std::complex<double>>y_1(n/2);
+    //Recursive_FFT(even, n/2, y_0);
+    //Recursive_FFT(odd, n/2, y_1);
 
     for(unsigned long k = 0; k < n/2; k++){
+        std::complex<double> w_n = std::polar(1.0, -2*std::numbers::pi*k/n);
         //y[k] = FFT_0.getRecT(k) + w * FFT_1.getRecT(k);
-        this->setRecT(k, FFT_0.getRecT(k) + w * FFT_1.getRecT(k));
+        this->setRecT(k, FFT_0.getRecT(k) + w_n * FFT_1.getRecT(k));
         //y[k + n/2] = FFT_0.getRecT(k) - w * FFT_0.getRecT(k);
-        this->setRecT(k + n/2, FFT_0.getRecT(k) - w * FFT_1.getRecT(k));
-        w = w * w_n;
+        this->setRecT(k + n/2, FFT_0.getRecT(k) - w_n * FFT_1.getRecT(k));
+        //w = w * w_n;
     }
 
     //this->setRecT(y);
 
     return;
 }
+
 
 // OUT-OF-CLASS DEFINITION...
 
@@ -65,7 +67,8 @@ void FFTGenerator::Recursive_FFT(const std::vector<std::complex<double>> &x //si
                    const unsigned &n//signal dimension,
                    std::vector<std::complex<double>> &y//discrete Fourier transform value
                    //WARNING:: we hearby implement the function without the reference operator as to use
-                   //the method in synbiosis with the reference getter method){
+                   //the method in synbiosis with the reference getter method)
+{
     
     NEED TO IMPLEMENT A CHECK ON THE DIMENSION OF N : METHOD IS VALID ONLY FOR DIMENSIONS MULTIPLE OF 2
 
@@ -120,24 +123,42 @@ void FFTGenerator::Iterative_FFT(){
     std::vector<std::complex<double>> x(this->getSignal());
     std::vector<std::complex<double>> y(n);
 
-    //NEED TO IMPLEMENT A CHECK ON THE DIMENSION OF N : METHOD IS VALID ONLY FOR DIMENSIONS MULTIPLE OF 2
+    
+
+    //CHECK ON THE DIMENSION OF N : METHOD IS VALID ONLY FOR DIMENSIONS MULTIPLE OF 2
+
+    if(!((n & (n-1)) == 0)){
+        //the dimension is not power of 2
+        // return and notify the user
+        std::cout << "Dimension of the input signal is not a power of 2:\n as such the Iterative_FFT is not adequate to calculate the FFT "<< std::endl;
+        return;
+    }
 
     for(size_t i = 0; i < n; ++i)
         y[ReverseBit(i,n)] = x[i];
 
-    for(size_t j = 1; j <= std::log2(n); ++j){
-        unsigned int d = 1<<j;
-        std::complex<double> w_d(std::polar(1.0, 2*std::numbers::pi/d));
+    for(size_t j =1; j <= std::log2(n); ++j){
+        unsigned int d = 2<<(j-1); // size
+        unsigned int d2 = d >> 1; // m2 = m/2
+        // principle root of nth complex root of unity.
+        std::complex<double> w_d(std::polar(1.0, -2*std::numbers::pi/d));
         std::complex<double> w(1.0,0.0);
-        for(size_t k = 0; k < d/2-1; ++k){
-            for(size_t m = k; m < n; m += d){
-                std::complex<double> t = w*y[m + d/2];
-                std::complex<double> a = y[k];
-                y[k] = a + t;
-                y[k + d/2] = a - t;
+
+
+        
+        for(size_t k = 0; k < d2; ++k) {
+            for(size_t m = k; m < n; m += d) {
+                std::complex<double> t = w * y[m + d2];
+                std::complex<double> u = y[m];
+
+                // similar calculating y[m]
+                y[m] = u + t;
+
+                // similar calculating ym+n/2]
+                y[m + d2] = u - t;
             }
+            w *= w_d;
         }
-        w *= w_d;
     }
 
     this->setIterT(y);

@@ -10,7 +10,7 @@ int main(){
     std::cout<< "Input signal is:" << std::endl;
     for(size_t i = 0; i < n; i++){
         //input[i] = std::complex<double>(static_cast<double>(rand())/RAND_MAX,static_cast<double>(rand())/RAND_MAX);
-        input[i] = std::complex<double>(static_cast<double>(i),std::pow(-1.0, i +1));
+        input[i] = std::complex<double>(static_cast<double>(i),/*std::pow(-1.0, i +1)*/1);
         //std::cout << input[i] << "\n";
     }
 
