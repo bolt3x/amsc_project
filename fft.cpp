@@ -37,7 +37,7 @@ void FFTGenerator::Recursive_FFT(){
 
     // merging results from recursive calls
     for(size_t k=0; k*2<N; ++k){
-      std::complex<double> Wn = std::polar(1.0, 2 * std::numbers::pi * k/N);
+      std::complex<double> Wn = std::polar(1.0, -2 * std::numbers::pi * k/N);
       this->setRecT(k, FFT_even.getRecT(k) + (Wn * FFT_odd.getRecT(k)));
       this->setRecT(k + N/2, FFT_even.getRecT(k) - (Wn * FFT_odd.getRecT(k)));
     }
