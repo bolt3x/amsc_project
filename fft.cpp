@@ -11,51 +11,39 @@ NAIVE RECURSIVE FFT :  basic, less-performant recursive version of the FFT.
 
 
 void FFTGenerator::Recursive_FFT(){
-    
-    //temp variables...
-
-    unsigned long n = this->getN();
+    unsigned long N = this->getN();
     std::vector<std::complex<double>> x(this->getSignal());
-
-    if(n == 1){
+    
+    if(N==1){
         this->setRecT(x);
         return;
     }
 
-    std::complex<double> w (1.0,0.0);
-    const std::complex<double> w_n(std::polar(1.0,2*std::numbers::pi/(this)->getN()));
+    // create vectors with even and odd coefficients
+    std::vector<complex<double>> x_even(N/2), x_odd(N/2);
 
-    std::vector<std::complex<double>> even (n/2);
-    std::vector<std::complex<double>> odd  (n/2);
-
-    for(size_t i = 0; i < n/2 ; ++i){
-        even[i] = x[i*2];
-        odd[i] = x[i*2 +1];
+    for(size_t it=0; it*2<N; ++it){
+        x_even[it] = x[it*2];
+        x_odd[it] = x[it*2+1];
     }
 
-    FFTGenerator FFT_0(even,n/2);
-    FFTGenerator FFT_1(odd,n/2);
+    // create class istances for recursive calls
+    FFTGenerator FFT_even(x_even, N/2);
+    FFTGenerator FFT_odd(x_odd, N/2);
 
-    FFT_0.Recursive_FFT();
-    FFT_1.Recursive_FFT();
+    // recursive calls
+    FFT_even.Recursive_FFT();
+    FFT_odd.Recursive_FFT();
 
-    /*std::vector<std::complex<double>>y_0(n/2);
-    std::vector<std::complex<double>>y_1(n/2);
-    Recursive_FFT(even, n/2, y_0);
-    Recursive_FFT(odd, n/2, y_1);*/
-
-    for(unsigned long k = 0; k < n/2; k++){
-        //y[k] = FFT_0.getRecT(k) + w * FFT_1.getRecT(k);
-        this->setRecT(k, FFT_0.getRecT(k) + w * FFT_1.getRecT(k));
-        //y[k + n/2] = FFT_0.getRecT(k) - w * FFT_0.getRecT(k);
-        this->setRecT(k + n/2, FFT_0.getRecT(k) - w * FFT_1.getRecT(k));
-        w = w * w_n;
+    // merging results from recursive calls
+    for(size_t k=0; k*2<N; ++k){
+      std::complex<double> Wn = std::polar(1.0, 2 * std::numbers::pi * k/N);
+      this->setRecT(k, FFT_even.getRecT(k) + (Wn * FFT_odd.getRecT(k)));
+      this->setRecT(k + N/2, FFT_even.getRecT(k) - (Wn * FFT_odd.getRecT(k)));
     }
-
-    //this->setRecT(y);
 
     return;
-}
+ }
 
 // OUT-OF-CLASS DEFINITION...
 
