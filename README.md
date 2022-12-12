@@ -1,7 +1,7 @@
 # amsc_project
-##Project for AMSC 22/23: Implementation of FFT algorithm
+## Project for AMSC 22/23: Implementation of FFT algorithm
 
-After cloning the directory:
+### After cloning the directory:
 ```
 make
 cd build
