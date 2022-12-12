@@ -1,27 +1,21 @@
 # amsc_project
 ## Project for AMSC 22/23: Implementation of FFT algorithm
 
-### After cloning the directory:
-```
-make
-cd build
-./fft
-```
-
-Some of the functions we implmented:
+### After cloning the directory you can use the 'make' command to build the executable, it will be found in the build directory.
+## To run the file ./fft use the flags:
 
 ```
-Recursive FFT
+-r Recursive FFT
 ```
 
 ```
-Iterative FFT (Cooley-Tukey Algorithm)
+-t Iterative FFT (Cooley-Tukey Algorithm)
 ```
 
 ```
-Parallel FFT with MPI
+-p Parallel FFT with MPI
 ```
 
 ```
-Inverse FFT
+-i Inverse FFT
 ```
