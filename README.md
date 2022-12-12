@@ -19,3 +19,5 @@
 ```
 -i Inverse FFT
 ```
+
+### The Input signal at the moment is fixed....
