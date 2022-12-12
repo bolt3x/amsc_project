@@ -63,7 +63,7 @@ ITERATIVE FFT :  basic iterative version of the FFT.
                         * serial version
                         * performs n operattions, log(n) times
                         * time complexity: T(n) = O(n*log(n))
-                        * need a reverse bit function
+                        * needs a reverse bit function
 ------------------------------------------------------*/
 
 
@@ -122,7 +122,7 @@ void FFTGenerator::Iterative_FFT(){
 /*----------------------------------------------------
 INVERSE FFT :  basic iterative version of the IFFT.
                         * uses previous iterative FFT
-                        * serial versions
+                        * serial version
 ------------------------------------------------------*/
 
 void FFTGenerator::Inverse_FFT(){
@@ -224,10 +224,10 @@ RANDOM GEN function: give a specified dimension, generate a signal of random pos
 
 
 /*----------------------------------------------------
-IS MULTIPLE funcition : to check whether a number is a multiple of 2
+IS Power funcition : to check whether a number is a Power of 2
 ------------------------------------------------------*/
 
-bool FFTGenerator::IsMultiple()const
+bool FFTGenerator::IsPower()const
 {
 
     unsigned long n = this->getN();
@@ -237,7 +237,6 @@ bool FFTGenerator::IsMultiple()const
     }
     return true;
 }
-
 
 //----------------------------STANDARD GETTERS----------------------------
 

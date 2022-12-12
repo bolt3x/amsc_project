@@ -8,6 +8,7 @@
 #include <functional>
 #include <random>
 #include <algorithm>
+#include <omp.h>
 
 #define N_STANDARD 150
 
@@ -69,7 +70,7 @@ class FFTGenerator{
     std::vector<std::complex<double>> RandomGen();
 
     // check for multiple of 2
-    bool IsMultiple()const;
+    bool IsPower()const;
 
     
 

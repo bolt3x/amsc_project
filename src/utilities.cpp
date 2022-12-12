@@ -34,6 +34,10 @@ PRINTIT function: print the result of a specified vector
 
 void PrintIt(const std::vector<std::complex<double>> &v,std::string msg,std::ostream &out){
 
+    if(v.size() == 0){
+        return;
+    }
+    
     for(int i = 0; i < 10; i++){
         out << "-";
     }
