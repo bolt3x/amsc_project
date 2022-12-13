@@ -10,15 +10,23 @@ NAIVE RECURSIVE FFT :  basic, less-performant recursive version of the FFT.
 ------------------------------------------------------*/
 
 
-void FFTGenerator::Recursive_FFT(){
+void FFTGenerator::Recursive_FFT(bool inverse){
     
     //temp variables...
 
     unsigned long n = this->getN();
     std::vector<std::complex<double>> x(this->getSignal());
 
+    if(!((n & (n-1)) == 0)){
+        //the dimension is not power of 2
+        // return and notify the user
+        std::cout << "Dimension of the input signal is not a power of 2:\n as such the Iterative_FFT is not adequate to calculate the FFT "<< std::endl;
+        return;
+    }
+
     if(n == 1){
-        this->setRecT(x);
+
+        this->setRecT(x);   
         return;
     }
 
@@ -45,12 +53,24 @@ void FFTGenerator::Recursive_FFT(){
     //Recursive_FFT(odd, n/2, y_1);
 
     for(unsigned long k = 0; k < n/2; k++){
-        std::complex<double> w_n = std::polar(1.0, -2*std::numbers::pi*k/n);
+        std::complex<double> w_n = std::polar(1.0, (inverse*4 - 2)*std::numbers::pi*k/n);
         //y[k] = FFT_0.getRecT(k) + w * FFT_1.getRecT(k);
         this->setRecT(k, FFT_0.getRecT(k) + w_n * FFT_1.getRecT(k));
         //y[k + n/2] = FFT_0.getRecT(k) - w * FFT_0.getRecT(k);
         this->setRecT(k + n/2, FFT_0.getRecT(k) - w_n * FFT_1.getRecT(k));
         //w = w * w_n;
+    }
+
+    if (inverse) {
+        
+        unsigned long n = getN();
+        unsigned long i = 0;
+        for (std::complex<double>& x : this->getRecT()){
+            this->setRecT(i,x/=n );
+            i++;
+        }
+        return;
+            
     }
 
     //this->setRecT(y);
@@ -70,7 +90,7 @@ void FFTGenerator::Recursive_FFT(const std::vector<std::complex<double>> &x //si
                    //the method in synbiosis with the reference getter method)
 {
     
-    NEED TO IMPLEMENT A CHECK ON THE DIMENSION OF N : METHOD IS VALID ONLY FOR DIMENSIONS MULTIPLE OF 2
+    NEED TO IMPLEMENT A CHECK ON THE DIMENSION OF N : METHOD IS VALID ONLY FOR DIMENSIONS POWER OF 2
 
     if(n == 1){
         y[0] = x[0];
@@ -115,7 +135,7 @@ ITERATIVE FFT :  basic iterative version of the FFT.
 
 
 
-void FFTGenerator::Iterative_FFT(){
+void FFTGenerator::Iterative_FFT(bool inverse){
 
     // temp variables...
 
@@ -125,7 +145,7 @@ void FFTGenerator::Iterative_FFT(){
 
     
 
-    //CHECK ON THE DIMENSION OF N : METHOD IS VALID ONLY FOR DIMENSIONS MULTIPLE OF 2
+    //CHECK ON THE DIMENSION OF N : METHOD IS VALID ONLY FOR DIMENSIONS POWER OF 2
 
     if(!((n & (n-1)) == 0)){
         //the dimension is not power of 2
@@ -134,32 +154,73 @@ void FFTGenerator::Iterative_FFT(){
         return;
     }
 
+    // first, swap the elements of the input signal into the right positions
+    // using ReverseBit funcion
+
     for(size_t i = 0; i < n; ++i)
         y[ReverseBit(i,n)] = x[i];
+
+        /*NOTE::
+        We hereby present an alternative to the bitreversal function, which is supposed to 
+        perform faster, yet is more crytic
+        
+        for (int i = 1, j = 0; i < n; i++) {
+        int bit = n >> 1;
+        for (; j & bit; bit >>= 1)
+            j ^= bit;
+        j ^= bit;
+
+        if (i < j)
+            swap(x[i], x[j]);
+    }
+*/
+
+    //then, we are looking to iterate log2(n) times the algorithm to compute the FFT
+    //starting from the single elements of the input elements, more or less as a "reduction tree"
+    //Note that, for each iteration, the successive term is determined as a conbination
+    // of two other previous terms, but the lenght to wich we seach for such elements (d2), i.e.
+    // the distance between the two elements is increasing as power of 2.
 
     for(size_t j =1; j <= std::log2(n); ++j){
         unsigned int d = 2<<(j-1); // size
         unsigned int d2 = d >> 1; // m2 = m/2
         // principle root of nth complex root of unity.
-        std::complex<double> w_d(std::polar(1.0, -2*std::numbers::pi/d));
+        std::complex<double> w_d(std::polar(1.0, (inverse*4 - 2)*std::numbers::pi/d));
         std::complex<double> w(1.0,0.0);
 
-
+        // k :: number of iterations representing the number of "consecutive combining pattern"
         
         for(size_t k = 0; k < d2; ++k) {
+
+            // m :: number of iteration representing the number of total of "combining patterns" of a certain type 
             for(size_t m = k; m < n; m += d) {
                 std::complex<double> t = w * y[m + d2];
                 std::complex<double> u = y[m];
 
                 // similar calculating y[m]
-                y[m] = u + t;
+                y[m] = (u + t);
 
                 // similar calculating ym+n/2]
-                y[m + d2] = u - t;
+                y[m + d2] = (u - t);
             }
             w *= w_d;
         }
+
     }
+
+    if (inverse) {
+        
+        unsigned long n = getN();
+        unsigned long i = 0;
+        for (std::complex<double>& x : y){
+            this->setIterT(i,x/=n );
+            i++;
+        }
+
+        return;
+            
+    }
+
 
     this->setIterT(y);
 
@@ -205,6 +266,8 @@ void FFTGenerator::Iterative_FFT(const std::vector<std::complex<double>> &x //si
 }
 
 */
+
+
 
 
 

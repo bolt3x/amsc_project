@@ -11,13 +11,14 @@ TIMEIT function: to time the execution time of a specified parameter-given routi
                 * output vector for transform
                 * ostream: where to print the results
 -----------------------------------------------------*/
-template<class C>
-void TimeIt(void (C::*func)(),
-            C& obj,
+
+template <typename T>
+void TimeIt(void (*func)(T),
+            T arg, 
             std::ostream &out)
 {
     auto start = high_resolution_clock::now();
-    (obj.*func)();
+    (*func)(arg);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
 
@@ -26,16 +27,30 @@ void TimeIt(void (C::*func)(),
 }
 
 
-template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(), FFTGenerator&, std::ostream&);
+template void TimeIt <std::vector<std::complex<double>>>(void (*)(std::vector<std::complex<double>>), std::vector<std::complex<double>>, std::ostream&);
 
 /*-----------------------------------------------------
 PRINTIT function: print the result of a specified vector
 -----------------------------------------------------*/
 
-void PrintIt(const std::vector<std::complex<double>> &v){
-    for(auto &i : v){
-        std::cout<< i << std::endl;
+void PrintIt(const std::vector<std::complex<double>> &v,std::string msg,std::ostream &out){
+
+    for(int i = 0; i < 10; i++){
+        out << "-";
     }
+    out << std::endl;
+    
+    out << msg << std::endl;
+    for(auto &i : v){
+        out <<std::setprecision(2) << i << " ";
+    }
+    out << std::endl;
+    
+    for(int i = 0; i < 10; i++){
+        out << "-";
+
+    }
+    out << std::endl;
     return;
 }
 
@@ -78,5 +93,41 @@ size_t ReverseBit(size_t num, const unsigned n)
 
     return nrev;
 
+
+}
+
+
+/*-----------------------------------------------------
+RANDOM GEN function: give a specified dimension, generate a signal of random positive numbers
+-----------------------------------------------------*/
+
+
+std::vector<std::complex<double>> RandomGen(unsigned long N, bool specific)
+{
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    std::vector<std::complex<double>> signal;
+    if(rank == 0){
+        signal.resize(N);
+        if(!specific){
+            std::mt19937 gen32; // MersenneTWISTER
+            for(size_t i = 0; i< N; ++i){
+
+                signal[i]=(static_cast<double>(gen32()%10)/*module*/*std::polar(1.0,2*std::numbers::pi / (gen32()%gen32())))/*random complex number of module 1*/;
+
+            }
+        }
+        else{
+
+            for(size_t i = 0; i < N; i++){
+
+                signal[i] = std::complex<double>(static_cast<double>(i),/*std::pow(-1.0, i +1)*/1);
+            
+            }
+        }
+        
+    }
+
+    return signal;
 
 }

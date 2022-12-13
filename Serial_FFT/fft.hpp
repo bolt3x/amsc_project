@@ -49,12 +49,15 @@ class FFTGenerator{
 
     // Declaration of FFT Recursive function
 
-    void Recursive_FFT();
+    void Recursive_FFT(bool inverse = false);
+
+    void Recursive_IFFT();
 
     // Declaration of FFT Iterative funcion
 
-    void Iterative_FFT();
+    void Iterative_FFT(bool inverse = false);
 
+    void Iterative_IFFT();
     //-------------------------------------- SUPPORTING FUNCTIONS --------------------------------------
     // SEE SOURCE FILE FOR DETAILED EXPLANATION...
 
