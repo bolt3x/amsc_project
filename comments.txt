@@ -1,0 +1,38 @@
+1.
+Definition of function templates go normally into an header file not a source file. 
+(while the explicit template instantiation goes into the  source file). The reason is that a function template is NOT a function, 
+is the template of a function (template means model).
+The compiler needs to have the definition of the function template to instantiate the corresponding template function, by substititing the
+template parameters with the type of the argument.
+
+You use an explicit template instance to save compilation, by instantiating the template functions you need most.
+
+What you have done (template definition in the source file + explicit instance in the same file) is not wrong, but it defies the
+idea of generic programming: all the instances of the template you are going to use must be explicitely instantiated in the source file.
+It is fine if you are certain that those are actually the only instances you are going to use.
+
+2.
+Prefer constexpr globals to define (whenever possible), not so important in your case, but it is safer. It would be better (and more C++) 
+to hide the globals into a namespace.
+
+3.
+Get the habit of using a dot to indicate a double: 0 is an int 0. is a double. You will never regret it.
+
+4.
+Why unsigned long if getN returns an unsigned int?
+    unsigned long n = this->getN();
+Moreover, to avoid nasty warnings, try to avoid narrowing implicit conversions. 
+The conversion unsigned int -> double is narrowing since not all unsigned ints are representable as double
+without losing precision. If you activate all warnings the compiler will tell you.
+I think that if you need that conversion it is better to be explicit, so that the
+user of your code is reassured that what you are doing is fine:
+    double nx=static_cast<double>(n);
+Implicit conversions are nice but may induce doubts when they are narrowing: is it intentional or a mistake? 
+    
+
+
+
+
+
+ 
+

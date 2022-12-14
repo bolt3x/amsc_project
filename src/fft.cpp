@@ -22,8 +22,8 @@ void FFTGenerator::Recursive_FFT(){
         return;
     }
 
-    std::complex<double> w (1.0,0.0);
-    const std::complex<double> w_n(std::polar(1.0,-2*M_PI/(this)->getN()));
+    std::complex<double> w {1.0,0.0};
+    const std::complex<double> w_n{std::polar(1.0,-2*M_PI/(this)->getN())};
 
     std::vector<std::complex<double>> even (n/2);
     std::vector<std::complex<double>> odd  (n/2);
@@ -93,8 +93,8 @@ void FFTGenerator::Iterative_FFT(){
         unsigned int d = 2<<(j-1); // size
         unsigned int d2 = d >> 1; // m2 = m/2
         // principle root of nth complex root of unity.
-        std::complex<double> w_d(std::polar(1.0, -2*M_PI/d));
-        std::complex<double> w(1.0,0.0);
+        std::complex<double> w_d{std::polar(1.0, -2*M_PI/d)};
+        std::complex<double> w{1.0,0.0};
 
 
         
@@ -131,7 +131,7 @@ void FFTGenerator::Inverse_FFT(){
 
    // temp variables...
 
-    unsigned long n = this->getN();
+    unsigned int n = this->getN();
     std::vector<std::complex<double>> x(this->getSignal());
     std::vector<std::complex<double>> y(n);
 
@@ -175,7 +175,8 @@ void FFTGenerator::Inverse_FFT(){
     }
 
     //compute the conjugate of the values and scale them
-    std::for_each(y.begin(),y.end(),[n](auto &elem){elem = std::conj(elem) / std::complex<double>{n,0};});
+    double nx=static_cast<double>(n);
+    std::for_each(y.begin(),y.end(),[nx](auto &elem){elem = std::conj(elem) / std::complex<double>{nx,0};});
 
     this->setInvT(y);
 
