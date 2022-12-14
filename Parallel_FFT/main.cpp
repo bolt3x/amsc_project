@@ -16,7 +16,7 @@ int main(int argc, char ** argv){
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    unsigned int n =8/*power of 2*/;
+    unsigned int n (512)/*power of 2*/;
     // the number of elements chosen is already known to all the processors
 
     
@@ -29,8 +29,7 @@ int main(int argc, char ** argv){
         PrintIt(x, "Input signal specifically generated");
     }
 
-
-    Parallel_FFT(x);
+    TimeIt(&Parallel_FFT, x);
     
     MPI_Finalize();
 

@@ -18,15 +18,15 @@ execute: fft_transform
 
 fft_transform: main.o objects
 	@echo "Linking FFT object files..."
-	$(CC) $(STANDARD)  -o fft_transform main.o FFT.o utilities.o
+	$(CC) $(STANDARD) -o fft_transform main.o FFT.o utilities.o
 
 objects:  FFT.cpp utilities.cpp fft.hpp utilities.hpp
 	@echo "Compiling source (FFT.cpp and utilities.cpp) files"
-	$(CC) $(STANDARD) -c FFT.cpp utilities.cpp -Wall
+	$(CC) $(STANDARD) -g -c FFT.cpp utilities.cpp -Wall
 
 main.o: main.cpp fft.hpp utilities.hpp
 	@echo "Compiling main.cpp files..."
-	$(CC) $(STANDARD) -c main.cpp  -Wall
+	$(CC) $(STANDARD) -g -c main.cpp  -Wall
 
 
 clean :

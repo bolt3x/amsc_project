@@ -14,9 +14,9 @@
 
 // timing function for class methods
 template <typename T> 
-void TimeIt(void (*func)(T),
-            T arg,
-            std::ostream &out);
+void TimeIt(void (*func)(T&),
+            T& arg,
+            std::ostream &out = std::cout);
 
 
 // print function

@@ -57,7 +57,7 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
 
     unsigned long width(N/size); // number of elements locally owned
 
-    std::vector<std::complex<double>> x_local(width /* + (N%size > rank)*/); // segment of input singal locally owned
+    //std::vector<std::complex<double>> x_local(width /* + (N%size > rank)*/); // segment of input singal locally owned
     std::vector<std::complex<double>> y_local(width /* + (N%size > rank)*/); // segment of output signal locally handled
                                                                          // the dimensions are calculated on the assumpion the number of elements
                                                                          // are multiple of p. This assumpion simpifies the work
@@ -92,28 +92,27 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
     }
 
     MPI_Scatter(x.data(),width , MPI_DOUBLE_COMPLEX,
-               x_local.data(), width , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+               y_local.data(), width , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 
     
-
 
 
     // Once the elements are redistributed among the processes, everyone of them can start the second phase
     //  ----> 2 PHASE : log2(n) - log2(p) iterations of the FFT algorithm without communication: simple additions
     //                  and subtruction on complex phases.
 
-    for(size_t j =1; j <= std::log2(n)-std::log2(size); ++j){
+    for(size_t j =1; j <= std::log2(N)-std::log2(size); ++j){
         unsigned int d = 2<<(j-1); // size
         unsigned int d2 = d >> 1; // m2 = m/2
         // principle root of nth complex root of unity.
-        std::complex<double> w_d(std::polar(1.0, (inverse*4 - 2)*std::numbers::pi/d));
+        std::complex<double> w_d(std::polar(1.0, - 2*std::numbers::pi/d));
         std::complex<double> w(1.0,0.0);
 
         // k :: number of iterations representing the number of "consecutive combining pattern"
         
         for(size_t k = 0; k < d2; ++k) {
             // m :: number of iteration representing the number of total of "combining patterns" of a certain type 
-            for(size_t m = k; m < n; m += d) {
+            for(size_t m = k; m < width; m += d) {
                 std::complex<double> t = w * y_local[m + d2];
                 std::complex<double> u = y_local[m];
 
@@ -134,51 +133,58 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
     //                  Note that in this representation, then number of processes p would represent
     //                  the dimension of the hypercube ==> p = 2^dim
 
-    for(size_t j =std::log2(n) - std::log2(size) + 1 ; j <= log2(size); ++j){
+    
+    for(size_t iter =1 ; iter <= std::log2(size); ++iter){
 
         //the dimension across which the copies are swapped between processes are dependent
         //form the iterations of the first loop
 
         std::vector<std::complex<double>> y_adiacent(y_local);
-        unsigned int ad(rank);
-        for(int i = 0; i< size; i++){
-            //Process sends the elements of y_local to the other process by first coping them in y_adiacent
-            MPI_Send(y_adiacent.data(), size, MPI_COMPLEX_DOUBLE, i + ad, 1, MPI_COMM_WORLD);
-        }
+        // the receiver of the data is determined by the rank and the iteration of the
+        //outer loop
+        int ad;
+        unsigned int d = 2<<(iter + static_cast<unsigned int>(std::log2(N)- std::log2(size))-1);
+        
+        // ad is the rank of the adiacent process
+        ad = rank + std::pow(-1.0,rank/iter)*iter;
+        //Process sends the elements of y_local to the adiacent process by first coping them in y_adiacent
+        MPI_Send(y_adiacent.data(), width, MPI_DOUBLE_COMPLEX, ad, 0, MPI_COMM_WORLD);
 
-        for(int i = 0; i< size; i++){
-            //Then receives the elements for the same process in y_adiacent
-            MPI_Recv(y_adiacent.data(), size, MPI_COMPLEX_DOUBLE, i + ad, 1, MPI_COMM_WORLD);
-        }
+        //Then receives the elements for the same process in y_adiacent
+        MPI_Recv(y_adiacent.data(), width, MPI_DOUBLE_COMPLEX, ad, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        unsigned int d = 2<<(j-1); // size
-        unsigned int d2 = d >> 1; // m2 = m/2
-        // principle root of nth complex root of unity.
-        std::complex<double> w_d(std::polar(1.0, (inverse*4 - 2)*std::numbers::pi/d));
+        // // principle root of nth complex root of unity.
+        std::complex<double> w_d(std::polar(1.0,-2*std::numbers::pi/d));
         std::complex<double> w(1.0,0.0);
 
         // k :: number of iterations representing the number of "consecutive combining pattern"
         
-        for(size_t k = 0; k < d2; ++k) {
+        for(size_t k = 0; k < width; ++k) {
             // m :: number of iteration representing the number of total of "combining patterns" of a certain type 
-            for(size_t m = k; m < n; m += d) {
                 
 
-                std::complex<double> t = w * y_local[m + d2];
-                std::complex<double> u = y_local[m];
+                std::complex<double> t = ((1.0 - w) * static_cast<std::complex<double>>(rank < ad) + w) * y_local[k];
+                std::complex<double> u = ((1.0 - w) * static_cast<std::complex<double>>(rank > ad) + w) * y_adiacent[k];
 
+                // Wether to add or to subtract t and u dipends on the specific
+                // processor and itereration of the outer loop
                 // similar calculating y[m]
-                y_local[m] = (u + t);
-
-                // similar calculating ym+n/2]
-                y_local[m + d2] = (u - t);
-            }
-            w *= w_d;
+                y_local[k] = (u + static_cast<std::complex<double>>(rank < ad)*t - static_cast<std::complex<double>>(rank > ad)*t);
+                w *= w_d;
         }
 
     }
 
+    // Once finished the third phase, all processes send their local data to rank 0 using a Gather
 
+    MPI_Gather(y_local.data(), width, MPI_DOUBLE_COMPLEX, x.data(),width,MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+
+
+
+
+    //--------DEBUGGING SECTION-------
+
+    /*
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -188,7 +194,7 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
         if(mpi_rank == rank){
             std::cout << "----------------" << std::endl;
             std::cout<<"process #"<< rank << " elements" << std::endl;
-            for(auto i : x_local){
+            for(auto i : y_local){
                 std::cout << " " << i << " " <<std::endl;
             }
         }
@@ -196,6 +202,10 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
         mpi_rank++;
         MPI_Barrier(MPI_COMM_WORLD);
     }
+
+    */
+
+    //--------DEBUGGING SECTION-------
 
     return;
 }

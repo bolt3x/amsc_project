@@ -13,21 +13,25 @@ TIMEIT function: to time the execution time of a specified parameter-given routi
 -----------------------------------------------------*/
 
 template <typename T>
-void TimeIt(void (*func)(T),
-            T arg, 
+void TimeIt(void (*func)(T&),
+            T& arg, 
             std::ostream &out)
 {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     auto start = high_resolution_clock::now();
+
     (*func)(arg);
+
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
 
-    out << "Time required to run: "<<duration.count() << " microseconds."<< std::endl;
+    out << "Time required to run per process#" << rank <<": "<<duration.count() << " microseconds."<< std::endl;
 
 }
 
 
-template void TimeIt <std::vector<std::complex<double>>>(void (*)(std::vector<std::complex<double>>), std::vector<std::complex<double>>, std::ostream&);
+template void TimeIt <std::vector<std::complex<double>>>(void (*)(std::vector<std::complex<double>>&), std::vector<std::complex<double>>&, std::ostream&);
 
 /*-----------------------------------------------------
 PRINTIT function: print the result of a specified vector
