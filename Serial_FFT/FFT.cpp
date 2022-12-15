@@ -185,7 +185,7 @@ void FFTGenerator::Iterative_FFT(bool inverse){
         unsigned int d = 2<<(j-1); // size
         unsigned int d2 = d >> 1; // m2 = m/2
         // principle root of nth complex root of unity.
-        std::complex<double> w_d(std::polar(1.0, (inverse*4 - 2)*std::numbers::pi/d));
+        std::complex<double> w_d(std::polar(1.0, static_cast<double>(inverse*4 - 2)*(std::numbers::pi/static_cast<double>(d))));
         std::complex<double> w(1.0,0.0);
 
         // k :: number of iterations representing the number of "consecutive combining pattern"
@@ -204,7 +204,10 @@ void FFTGenerator::Iterative_FFT(bool inverse){
                 y[m + d2] = (u - t);
             }
             w *= w_d;
+
+
         }
+
 
     }
 

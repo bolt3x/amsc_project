@@ -4,19 +4,21 @@
 #include "utilities.hpp"
 
 
-int main(){
-    unsigned int n =4/*power of 2*/;
+int main(int argc, char ** argv){
+
+    if(argc != 2)
+    {
+        std::cout << "Wrong number of parameters to start the Parallel FFT"<< std::endl;
+        return 0;
+    }
+    unsigned int n = std::stoi(argv[1])/*power of 2*/;
     std::vector<std::complex<double>> input(n);
     std::cout<< "Input signal is:" << std::endl;
-    input[0] = 12;
-    input[1] = 21;
-    input[2] = 18;
-    input[3] = 15;
-    // for(size_t i = 0; i < n; i++){
-    //     //input[i] = std::complex<double>(static_cast<double>(rand())/RAND_MAX,static_cast<double>(rand())/RAND_MAX);
-    //     input[i] = std::complex<double>(static_cast<double>(i),/*std::pow(-1.0, i +1)*/1);
-    //     //std::cout << input[i] << "\n";
-    // }
+    for(size_t i = 0; i < n; i++){
+        //input[i] = std::complex<double>(static_cast<double>(rand())/RAND_MAX,static_cast<double>(rand())/RAND_MAX);
+        input[i] = std::complex<double>(static_cast<double>(i),/*std::pow(-1.0, i +1)*/1);
+        //std::cout << input[i] << "\n";
+    }
 
     FFTGenerator FFT(input,n);
 

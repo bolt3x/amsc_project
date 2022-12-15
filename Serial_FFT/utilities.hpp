@@ -21,7 +21,7 @@ void TimeIt(void (C::*func)(T),
 
 
 // print function
-void PrintIt(const std::vector<std::complex<double>> &v,std::string msg,std::ostream &out = std::cout);
+void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg,std::ostream &out = std::cout);
 
 // reverse bit function
 

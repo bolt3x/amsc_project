@@ -35,7 +35,7 @@ template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(bool), FFTGenerator&, 
 PRINTIT function: print the result of a specified vector
 -----------------------------------------------------*/
 
-void PrintIt(const std::vector<std::complex<double>> &v,std::string msg,std::ostream &out){
+void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg,std::ostream &out){
 
     for(int i = 0; i < 10; i++){
         out << "-";
@@ -44,7 +44,7 @@ void PrintIt(const std::vector<std::complex<double>> &v,std::string msg,std::ost
     
     out << msg << std::endl;
     for(auto &i : v){
-        out <<std::setprecision(2) << i << " ";
+        out << i << " ";
     }
     out << std::endl;
     
