@@ -42,16 +42,22 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
 
     unsigned long N(x.size()); //variable to store number of total elements, assumed to be only known to rank 0 
     
+    
+    // Now, as a first step, process of rank 0 has to broadcast the number of total elments to the others
+
+    MPI_Bcast(&N, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD); 
+
+
     if(!((N & (N-1)) == 0)){
-        if(rank == 0){
+
+        std::cout << rank <<std::endl;
+        if(rank == 0)
+        {
             std::cout << "Number elements of the input signal is not a power of 2: for the algorithm to work properly\
             the number of elements has to be a power of 2, exiting.."<< std::endl;
         }
         return;
     }
-    // Now, as a first step, process of rank 0 has to broadcast the number of total elments to the others
-
-    MPI_Bcast(&N, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD); 
 
     // Each processor calculates the elements it has to deal with...                                                                 
 
@@ -64,15 +70,16 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
 
     // Note that rank 0 still has to share the elements of x between all the other processes
 
-    // Now, we present two different approaches:
+    // Now, we present different approaches:
     //      1) : we can let process 0 alone handle the permutation of the elements of the signal (phase I)
     //          and then scatter this elements among the different processes. By doing so, rank 0 is doing
     //          more work as it is compelled to compute all the changes in position by itself, but, on the other
     //          hand the overall communication cost is realtively small...
     //      2) : we can let process 0 broadcast the elements of the signal to all the different processes,
-    //           then each one of then broadcast in the right position the element of the singal into the
+    //           then each one of them broadcast in the right position the element of the singal into the
     //           ouput vector, by bit reversal. This leads to a reduced computational job for rank 0
     //           but the overall communication cost is increased instead
+    //      3) : with point to point comunication rank 0 sends the element required by a process to the process itself
     //
     // We choose the first approach
 
@@ -94,8 +101,8 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
     MPI_Scatter(x.data(),width , MPI_DOUBLE_COMPLEX,
                y_local.data(), width , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 
-    
 
+    
 
     // Once the elements are redistributed among the processes, everyone of them can start the second phase
     //  ----> 2 PHASE : log2(n) - log2(p) iterations of the FFT algorithm without communication: simple additions
@@ -127,10 +134,12 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
 
     }
 
+    
+
     //Then the third phase starts:
     //  ----> 3 PHASE : log2(p) iterations durig which every process swaps copies of his values
     //                  with a process adiacient across some dimension of the hypercube
-    //                  Note that in this representation, then number of processes p would represent
+    //                  Note that in this representation, the number of processes p would represent
     //                  the dimension of the hypercube ==> p = 2^dim
 
     
@@ -142,11 +151,12 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
         std::vector<std::complex<double>> y_adiacent(y_local);
         // the receiver of the data is determined by the rank and the iteration of the
         //outer loop
-        int ad;
+
+        // ad is the rank of the adiacent process
+        const int ad = rank + (((rank/iter)%2) *(-2) +1)*iter;
         unsigned int d = 2<<(iter + static_cast<unsigned int>(std::log2(N)- std::log2(size))-1);
         
-        // ad is the rank of the adiacent process
-        ad = rank + std::pow(-1.0,rank/iter)*iter;
+        
         //Process sends the elements of y_local to the adiacent process by first coping them in y_adiacent
         MPI_Send(y_adiacent.data(), width, MPI_DOUBLE_COMPLEX, ad, 0, MPI_COMM_WORLD);
 
@@ -163,15 +173,19 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
             // m :: number of iteration representing the number of total of "combining patterns" of a certain type 
                 
 
-                std::complex<double> t = ((1.0 - w) * static_cast<std::complex<double>>(rank < ad) + w) * y_local[k];
-                std::complex<double> u = ((1.0 - w) * static_cast<std::complex<double>>(rank > ad) + w) * y_adiacent[k];
+                std::complex<double> t = ((1.0 - w) * static_cast<double>(rank < ad) + w) * y_local[k];
+                std::complex<double> u = ((1.0 - w) * static_cast<double>(rank > ad) + w) * y_adiacent[k];
 
                 // Wether to add or to subtract t and u dipends on the specific
                 // processor and itereration of the outer loop
                 // similar calculating y[m]
-                y_local[k] = (u + static_cast<std::complex<double>>(rank < ad)*t - static_cast<std::complex<double>>(rank > ad)*t);
+                y_local[k] = (u + (2.0*static_cast<double>(rank < ad) - 1.0)*t);
                 w *= w_d;
+
         }
+
+        
+        
 
     }
 
@@ -180,12 +194,9 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
     MPI_Gather(y_local.data(), width, MPI_DOUBLE_COMPLEX, x.data(),width,MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 
 
-
-
     //--------DEBUGGING SECTION-------
 
     /*
-
     MPI_Barrier(MPI_COMM_WORLD);
 
     int mpi_rank = 0;
@@ -202,10 +213,13 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
         mpi_rank++;
         MPI_Barrier(MPI_COMM_WORLD);
     }
-
     */
 
+
+
     //--------DEBUGGING SECTION-------
+
+    
 
     return;
 }

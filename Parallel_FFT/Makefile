@@ -14,7 +14,7 @@ all: execute
 
 execute: fft_transform
 	@echo "Executing program with #8 processes..."
-	$(EX) -n 2 fft_transform
+	$(EX) -n 2 fft_transform 8
 
 fft_transform: main.o objects
 	@echo "Linking FFT object files..."
@@ -22,11 +22,11 @@ fft_transform: main.o objects
 
 objects:  FFT.cpp utilities.cpp fft.hpp utilities.hpp
 	@echo "Compiling source (FFT.cpp and utilities.cpp) files"
-	$(CC) $(STANDARD) -g -c FFT.cpp utilities.cpp -Wall
+	$(CC) $(STANDARD) -c FFT.cpp utilities.cpp -Wall
 
 main.o: main.cpp fft.hpp utilities.hpp
 	@echo "Compiling main.cpp files..."
-	$(CC) $(STANDARD) -g -c main.cpp  -Wall
+	$(CC) $(STANDARD) -c main.cpp  -Wall
 
 
 clean :

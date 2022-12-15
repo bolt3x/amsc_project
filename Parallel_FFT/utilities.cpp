@@ -28,6 +28,7 @@ void TimeIt(void (*func)(T&),
 
     out << "Time required to run per process#" << rank <<": "<<duration.count() << " microseconds."<< std::endl;
 
+    return;
 }
 
 
@@ -46,7 +47,7 @@ void PrintIt(const std::vector<std::complex<double>> &v,std::string msg,std::ost
     
     out << msg << std::endl;
     for(auto &i : v){
-        out <<std::setprecision(2) << i << " ";
+        out << i << " ";
     }
     out << std::endl;
     
