@@ -32,7 +32,7 @@ template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(), FFTGenerator&, std:
 PRINTIT function: print the result of a specified vector
 -----------------------------------------------------*/
 
-void PrintIt(const std::vector<std::complex<double>> &v,std::string msg,std::ostream &out){
+void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg,const std::ostream &out){
 
     if(v.size() == 0){
         return;
