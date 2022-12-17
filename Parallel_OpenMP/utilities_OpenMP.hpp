@@ -1,0 +1,35 @@
+#ifndef UTILITIES_HPP
+#define UTILITIES_HPP
+
+#include <iostream>
+#include <vector>
+#include <complex>
+#include <stdlib.h>
+#include <chrono>
+#include <functional>
+#include <iomanip>
+
+
+//------------------------------UTILITIES----------------------------------
+
+// timing function for class methods
+template <typename T> 
+void TimeIt(void (*func)(T&, const unsigned long&),
+            T& arg,
+            const unsigned long &,
+            std::ostream &out = std::cout);
+
+
+// print function
+
+void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg,std::ostream &out = std::cout);
+
+// reverse bit function
+
+size_t ReverseBit(size_t num, const unsigned n);
+
+// random signal generator
+
+std::vector<std::complex<double>> RandomGen(unsigned long N, bool specific = true);
+
+#endif
