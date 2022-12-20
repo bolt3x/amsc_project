@@ -68,7 +68,7 @@ int main(int argc, char **argv){
 	FFTGenerator fft(input,n);
 	
 	if(rec_flag){    
-    TimeIt<FFTGenerator>(&FFTGenerator::Recursive_FFT,fft);
+    
 		fft.Recursive_FFT();
 
 		PrintIt(fft.getRecT(),"Recursive");
@@ -80,7 +80,11 @@ int main(int argc, char **argv){
 		PrintIt(fft.getIterT(),"Iterative");
 	}
 	if(par_flag){
-		std::cout << "yet to be implemented..." << std::endl;
+		
+    fft.OPENMP_FFT();
+
+    PrintIt(fft.getOpenMPT(),"OpenMp");
+    
 	}
 	if(inv_flag){
 		

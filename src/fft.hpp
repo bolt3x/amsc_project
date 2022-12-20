@@ -56,6 +56,10 @@ class FFTGenerator{
 
     void Iterative_FFT();
 
+    // Declaration of FFT Parallel OPENMP function
+
+    void OPENMP_FFT(const unsigned long &num_threads = 2);
+
     // Declaration of Inverse FFT
 
     void Inverse_FFT();
@@ -91,6 +95,10 @@ class FFTGenerator{
 
     std::complex<double> getIterT(unsigned int const pos) const;
 
+    std::vector<std::complex<double>> getOpenMPT()const;
+
+    std::complex<double> getOpenMPT(unsigned int const pos) const;
+
     std::vector<std::complex<double>> getInvT()const;
 
     std::complex<double> getInvT(unsigned int const pos) const;
@@ -104,6 +112,10 @@ class FFTGenerator{
     void setIterT(unsigned long const pos, std::complex<double> const val);
 
     void setIterT(std::vector<std::complex<double>> y);
+
+    void setOpenMPT(unsigned long const pos, std::complex<double> const val);
+
+    void setOpenMPT(std::vector<std::complex<double>> y);
 
     void setInvT(unsigned long const pos, std::complex<double> const val);
 
@@ -123,6 +135,10 @@ class FFTGenerator{
 
         //FFT iter values
         std::vector<std::complex<double>> m_iter;
+
+        //FFT OpenMp vales
+
+        std::vector<std::complex<double>> m_openmp;
 
         //FFT inv values
         std::vector<std::complex<double>> m_inv;
