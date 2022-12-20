@@ -68,7 +68,7 @@ int main(int argc, char **argv){
 	FFTGenerator fft(input,n);
 	
 	if(rec_flag){
-
+    
 		fft.Recursive_FFT();
 
 		PrintIt(fft.getRecT(),"Recursive");

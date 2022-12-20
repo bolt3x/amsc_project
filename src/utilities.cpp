@@ -3,7 +3,7 @@
 
 
 
-//template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(), FFTGenerator&, std::ostream&);
+template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(), FFTGenerator&, std::ostream&);
 
 /*-----------------------------------------------------
 PRINTIT function: print the result of a specified vector
