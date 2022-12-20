@@ -3,16 +3,13 @@
 
 
 
-
-
-
-template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(), FFTGenerator&, std::ostream&);
+//template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(), FFTGenerator&, std::ostream&);
 
 /*-----------------------------------------------------
 PRINTIT function: print the result of a specified vector
 -----------------------------------------------------*/
 
-void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg,const std::ostream &out){
+void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg, std::ostream &out){
 
     if(v.size() == 0){
         return;
@@ -76,4 +73,22 @@ size_t ReverseBit(size_t num, const unsigned n)
 
     return nrev;
 
+}
+
+/*----------------------------------------------------
+READIT : given a string it will try to read a vector
+            from the file with that name
+------------------------------------------------------*/
+
+void ReadIt(const std::string& file,std::vector<std::complex<double>> &v,size_t &n){
+    
+    std::ifstream input(file);
+    std::vector<std::complex<double>> buffer{
+            std::istream_iterator<std::complex<double>>(input), 
+            std::istream_iterator<std::complex<double>>() };
+    
+    v = buffer;
+    n = v.size();
+    
+    return;
 }

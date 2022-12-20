@@ -7,7 +7,8 @@
 #include <stdlib.h>
 #include <chrono>
 #include <functional>
-
+#include <fstream>
+#include <iterator>
 
 //------------------------------UTILITIES----------------------------------
 
@@ -18,10 +19,13 @@ void TimeIt(void (C::*func)(),
             std::ostream &out = std::cout);
 
 // print function
-void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg = "",const std::ostream &out = std::cout);
+void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg = "", std::ostream &out = std::cout);
 
 // reverse bit function
 
 size_t ReverseBit(size_t num, const unsigned n);
+
+// read signal from file function
+void ReadIt(const std::string& file,std::vector<std::complex<double>> &v,size_t &n);
 
 #endif

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <complex>
+#include <string>
 
 #include <unistd.h>
 
@@ -14,7 +15,7 @@ int main(int argc, char **argv){
 	int iter_flag = 0;
 	int inv_flag = 0;
 	int par_flag = 0;
-	char *signal_value = NULL;
+	char *signal_file = NULL;
 	
 	int c;
 	
@@ -34,7 +35,7 @@ int main(int argc, char **argv){
         par_flag = 1;
         break;
       case 's':
-        signal_value = optarg;
+        signal_file = optarg;
         break;
       case '?':
         if (optopt == 's')
@@ -50,8 +51,18 @@ int main(int argc, char **argv){
         abort ();
 	}
 	
-	size_t n = 8;
-	std::vector<std::complex<double>> input{1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0 };
+  std::vector<std::complex<double>> input;
+  size_t n;
+  if(!signal_file){
+	  n = 8;
+    input.resize(8);
+	  input = {1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0 };
+  }
+
+  else {
+    std::string s(signal_file);
+    ReadIt(s,input,n);
+  }
 
 	PrintIt(input,"Input");
 	FFTGenerator fft(input,n);
