@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <omp.h>
 
-#define N_STANDARD 150
+inline constexpr unsigned N_STANDARD=150;
 
 //---------------------------------FFT CLASS------------------------------
 
@@ -24,24 +24,24 @@ class FFTGenerator{
     FFTGenerator():
         m_n(N_STANDARD),
         m_signal(this->RandomGen()),
-        m_rec(m_n,0),
-        m_iter(m_n,0)
+        m_rec(m_n,0.),
+        m_iter(m_n,0.)
         {};
 
     // Partial constructor: just the dimension is given
     FFTGenerator(const unsigned &n):
         m_n(n),
         m_signal(this->RandomGen()),
-        m_rec(n,0),
-        m_iter(n,0)
+        m_rec(n,0.),
+        m_iter(n,0.)
         {};
 
     // Full constructor: both the input signal and the dimensions are given
     FFTGenerator(const std::vector<std::complex<double>> &signal, const unsigned &n):
         m_n(n),
         m_signal(signal),
-        m_rec(n,0),
-        m_iter(n,0)
+        m_rec(n,0.),
+        m_iter(n,0.)
         {};
 
     // Destructor
