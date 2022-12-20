@@ -21,9 +21,12 @@
 ```
 
 ```
--s <file.txt> will read the input from a txt file you created. It should be located in the build the directory and the format should be:
+-s <file.txt> will read the input from a txt file you created. 
+   It should be located in the build the directory and the format should be:
 
 (1.,0.)
 (2.1,1.5)
 (6.4,10.2)
+
+Otherwise the input is fixed.
 ```
