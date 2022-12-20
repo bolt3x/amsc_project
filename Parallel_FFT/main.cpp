@@ -39,7 +39,12 @@ int main(int argc, char ** argv){
         PrintIt(x, "Input signal specifically generated");
     }
 
-    TimeIt(&Parallel_FFT, x);
+    Parallel_FFT(x);
+
+    if(rank == 0)
+        PrintIt(x,"FFT computed using MPI");
+
+    //TimeIt(&Parallel_FFT, x);
     
     MPI_Finalize();
 

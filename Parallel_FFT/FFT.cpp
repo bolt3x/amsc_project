@@ -9,7 +9,8 @@ PARALLEL FFT function:
 
 // Implememtation of parallel function:
 // First of all, each avaiable processor handles n/p elements.
-// We identify 3 different phases:
+// We identify 3 different phases, and for each of those phases we calculate an estimate of the time required to 
+// run them, as to assess the possible bottlenecks
 // ---->  I PHASE  :: swap the elements of a into y with bit reverse. To do so, each processor handles only a section of the vectors
 // a and y, so each processos will have to scatter specific elemnts among specific processors. The algorithm to do
 // so is reported below.
@@ -40,6 +41,9 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
         return;
     }
 
+    // We measure the time required for the boradcast of n and the sorting
+    auto start = std::chrono::high_resolution_clock::now();
+
     unsigned long N(x.size()); //variable to store number of total elements, assumed to be only known to rank 0 
     
     
@@ -49,8 +53,6 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
 
 
     if(!((N & (N-1)) == 0)){
-
-        std::cout << rank <<std::endl;
         if(rank == 0)
         {
             std::cout << "Number elements of the input signal is not a power of 2: for the algorithm to work properly\
@@ -98,15 +100,37 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
 
     }
 
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    if(rank ==0)
+        std::cout << "Time required to broadcast the dimension, create temporary variables and sort the elements by process 0 as per process " << rank <<": "<<duration.count() << " microseconds."<< std::endl;
+
+
+    // Now we measure the time required for the scatter
+    start = std::chrono::high_resolution_clock::now();
+
+
     MPI_Scatter(x.data(),width , MPI_DOUBLE_COMPLEX,
                y_local.data(), width , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 
+
+
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    if(rank ==0)
+        std::cout << "Time required to scatter the elements as per process " << rank <<": "<<duration.count() << " microseconds."<< std::endl;
 
     
 
     // Once the elements are redistributed among the processes, everyone of them can start the second phase
     //  ----> 2 PHASE : log2(n) - log2(p) iterations of the FFT algorithm without communication: simple additions
     //                  and subtruction on complex phases.
+
+    //Now time phase 2
+
+    start = std::chrono::high_resolution_clock::now();
 
     for(size_t j =1; j <= std::log2(N)-std::log2(size); ++j){
         unsigned int d = 2<<(j-1); // size
@@ -134,6 +158,13 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
 
     }
 
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    if(rank ==0)
+        std::cout << "Time required to prerform the first log2(n)-log2(p) iterations of butterfly pattern as per process " << rank <<": "<<duration.count() << " microseconds."<< std::endl;
+
+
     
 
     //Then the third phase starts:
@@ -142,7 +173,12 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
     //                  Note that in this representation, the number of processes p would represent
     //                  the dimension of the hypercube ==> p = 2^dim
 
-    
+
+
+    // Finally, we measure the time necessary to perfom the last phase
+    start = std::chrono::high_resolution_clock::now();
+
+
     for(size_t iter =1 ; iter <= std::log2(size); ++iter){
 
         //the dimension across which the copies are swapped between processes are dependent
@@ -185,6 +221,8 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
         }
 
         
+
+        
         
 
     }
@@ -192,6 +230,13 @@ void Parallel_FFT(std::vector<std::complex<double>> &x){
     // Once finished the third phase, all processes send their local data to rank 0 using a Gather
 
     MPI_Gather(y_local.data(), width, MPI_DOUBLE_COMPLEX, x.data(),width,MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    if(rank ==0)
+        std::cout << "Time required to perform the last log2(p) iterations of the butterfly pattern as per process" << rank <<": "<<duration.count() << " microseconds."<< std::endl;
+
 
 
     //--------DEBUGGING SECTION-------

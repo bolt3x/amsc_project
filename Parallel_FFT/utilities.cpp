@@ -1,35 +1,17 @@
 #include "utilities.hpp"
 #include "fft.hpp"
 
-using namespace std::chrono;
+
 
 
 /*-----------------------------------------------------
 TIMEIT function: to time the execution time of a specified parameter-given routine. Specify:
                 * function to be used to compute FFT;
-                * input signal and size;
-                * output vector for transform
+                * input signal;
                 * ostream: where to print the results
 -----------------------------------------------------*/
 
-template <typename T>
-void TimeIt(void (*func)(T&),
-            T& arg, 
-            std::ostream &out)
-{
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    auto start = high_resolution_clock::now();
 
-    (*func)(arg);
-
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-
-    out << "Time required to run per process#" << rank <<": "<<duration.count() << " microseconds."<< std::endl;
-
-    return;
-}
 
 
 template void TimeIt <std::vector<std::complex<double>>>(void (*)(std::vector<std::complex<double>>&), std::vector<std::complex<double>>&, std::ostream&);
@@ -38,7 +20,7 @@ template void TimeIt <std::vector<std::complex<double>>>(void (*)(std::vector<st
 PRINTIT function: print the result of a specified vector
 -----------------------------------------------------*/
 
-void PrintIt(const std::vector<std::complex<double>> &v,std::string msg,std::ostream &out){
+void PrintIt(const std::vector<std::complex<double>> &v,const std::string &msg,std::ostream &out){
 
     for(int i = 0; i < 10; i++){
         out << "-";

@@ -9,7 +9,7 @@
 #include <functional>
 #include <random>
 #include <algorithm>
-#include <mpi.h>
+
 
 #define N_STANDARD 150
 

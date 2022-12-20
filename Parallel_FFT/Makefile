@@ -13,7 +13,7 @@ STANDARD = -std=c++20    #specify the compiling standard
 all: execute
 
 execute: fft_transform
-	@echo "Executing program with #8 processes..."
+	@echo "Executing program..."
 	$(EX) -n 2 fft_transform 8
 
 fft_transform: main.o objects
