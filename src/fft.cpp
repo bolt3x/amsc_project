@@ -22,6 +22,13 @@ void FFTGenerator::Recursive_FFT(){
         return;
     }
 
+    if(!((n & (n-1)) == 0)){
+        //the dimension is not power of 2
+        // return and notify the user
+        std::cout << "Dimension of the input signal is not a power of 2:\n as such the Iterative_FFT is not adequate to calculate the FFT "<< std::endl;
+        return;
+    }
+
     std::complex<double> w {1.0,0.0};
     const std::complex<double> w_n{std::polar(1.0,-2*M_PI/(this)->getN())};
 
@@ -121,11 +128,10 @@ void FFTGenerator::Iterative_FFT(){
 
 /*-----------------------------------------------------
 PARALLEL OPENMP FFT function:  Implememtation of parallel function:
-                        First of all, each avaiable processor handles n/p elements.
-                        We identify 3 different phases:
-                        I PHASE  :: swap the elements of a into y with bit reverse. To do so, each processor handles only a section of the vectors
-                        a and y, so each processos will have to scatter specific elemnts among specific processors. The algorithm to do
-                        so is reported below.
+                        To put it shortly, the parallelization of the FFT with OpenMP can be achieved creating a team of threads
+                        and assigning the iterations of the two loops (the one for swapping in the correct order the elements of 
+                        the signal and the one to perform the butterfy pattern operations between the elements) by using the 
+                        pragma for directives
 
 -----------------------------------------------------*/
 
@@ -135,6 +141,20 @@ void FFTGenerator::OPENMP_FFT(const unsigned long &num_threads ){
 
     unsigned long n = this->getN();
     std::vector<std::complex<double>> x(this->getSignal());
+
+
+    if(!((n & (n-1)) == 0)){
+        //the dimension is not power of 2
+        // return and notify the user
+        std::cout << "Dimension of the input signal is not a power of 2:\n as such the Iterative_FFT is not adequate to calculate the FFT. Exiting... "<< std::endl;
+        return;
+    }
+    else if(!((num_threads & (num_threads-1)) == 0)){
+
+        std::cout << "Number of called threads is not correct: for the algorithm to work properly the number of threads has to be a power of 2. Exiting..."<< std::endl;
+
+        return;
+    }
 
     
     #pragma omp parallel num_threads(num_threads) shared (x)
@@ -184,10 +204,17 @@ void FFTGenerator::OPENMP_FFT(const unsigned long &num_threads ){
 
 
     //-------------DEBUGGING SECTION------------------
+
     this->setOpenMPT(x);
 
     return;
 }
+
+
+
+
+
+
 
 /*----------------------------------------------------
 INVERSE FFT :  basic iterative version of the IFFT.

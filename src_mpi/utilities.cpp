@@ -3,18 +3,6 @@
 
 
 /*-----------------------------------------------------
-TIMEIT function: to time the execution time of a specified parameter-given routine. Specify:
-                * function to be used to compute FFT;
-                * input signal;
-                * eventually the number of threads
-                * ostream: where to print the results
------------------------------------------------------*/
-
-template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(), FFTGenerator&, std::ostream&);
-
-template void TimeIt<FFTGenerator>(void (FFTGenerator::*)(const unsigned long&), FFTGenerator&, const unsigned long&, std::ostream&);
-
-/*-----------------------------------------------------
 PRINTIT function: print the result of a specified vector
 -----------------------------------------------------*/
 

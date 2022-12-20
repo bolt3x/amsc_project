@@ -12,6 +12,7 @@
 
 inline constexpr unsigned N_STANDARD=150;
 
+
 //---------------------------------FFT CLASS------------------------------
 
 class FFTGenerator{
@@ -145,6 +146,11 @@ class FFTGenerator{
         
 
 };
+
+
+//Out of class declaration of Parallel FFT function (MPI)
+
+void MPI_FFT(std::vector<std::complex<double>> &x);
 
 
 

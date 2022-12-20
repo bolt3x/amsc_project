@@ -1,8 +1,11 @@
 # Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
 TARGET_EXEC := fft
 
+
 BUILD_DIR := ./build
+BUILD_DIR_MPI := ./build_mpi
 SRC_DIRS := ./src
+SRC_DIRS_MPI := ./src_mpi
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. Make will incorrectly expand these otherwise.
@@ -18,16 +21,20 @@ DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
 CPPFLAGS := $(INC_FLAGS) -MMD -MP -Wall -std=c++17 -fopenmp
+CCPFLAGS_MPI := $(INC_FLAGS) -Wall -std=c++17
+
 
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CXX) $(OBJS) $(CPPFLAGS) -o $@ $(LDFLAGS)
+
 
 # Build step for C++ source
 $(BUILD_DIR)/%.cpp.o: %.cpp
@@ -36,11 +43,15 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 
 
 .PHONY: clean mpi
-clean:
-	rm -r $(BUILD_DIR)
 	
+
+clean:
+	rm -r -rf $(BUILD_DIR) || true
+	rm -r -rf $(BUILD_DIR_MPI) ||true
+
 mpi:
-	make CXX=mpic++
+	make CXX=mpic++ BUILD_DIR=$(BUILD_DIR_MPI) SRC_DIRS=$(SRC_DIRS_MPI)
+	
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those

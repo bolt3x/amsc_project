@@ -14,7 +14,7 @@ int main(int argc, char **argv){
 	int rec_flag = 0;
 	int iter_flag = 0;
 	int inv_flag = 0;
-	int par_flag = 0;
+	int OMP_flag = 0;
 	char *signal_file = NULL;
 	
 	int c;
@@ -32,16 +32,16 @@ int main(int argc, char **argv){
         inv_flag = 1;
         break;
       case 'p':
-        par_flag = 1;
+        OMP_flag = 1;
         break;
       case 's':
         signal_file = optarg;
         break;
       case '?':
         if (optopt == 's')
-          fprintf (stderr, "Option -%s requires an argument.\n", optopt);
+          fprintf (stderr, "Option -%s requires an argument.\n", static_cast<char>(optopt));
         else if (isprint (optopt))
-          fprintf (stderr, "Unknown option `-%s'.\n", optopt);
+          fprintf (stderr, "Unknown option `-%s'.\n", static_cast<char>(optopt));
         else
           fprintf (stderr,
                    "Unknown option character `\\x%x'.\n",
@@ -51,51 +51,73 @@ int main(int argc, char **argv){
         abort ();
 	}
 	
+
+
   std::vector<std::complex<double>> input;
   size_t n;
-  if(!signal_file){
-	  n = 8;
-    input.resize(8);
-	  input = {1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0 };
-  }
+  //--------------------
 
-  else {
-    std::string s(signal_file);
-    ReadIt(s,input,n);
-  }
+    if(!signal_file){
+      n = 32;
+      input.resize(n);
+      input = RandomGen(n);
+    }
 
-	PrintIt(input,"Input");
-	FFTGenerator fft(input,n);
+    else {
+      std::string s(signal_file);
+      ReadIt(s,input,n);
+    }
+
+    PrintIt(input,"Input");
+    FFTGenerator fft(input,n);
+
+  //-------------------- 
+  
 	
-	if(rec_flag){    
+	
+	if(rec_flag){ 
+
+  
+
+    TimeIt<FFTGenerator>(&FFTGenerator::Recursive_FFT, fft);
     
-		fft.Recursive_FFT();
+		//fft.Recursive_FFT();
 
 		PrintIt(fft.getRecT(),"Recursive");
 	}
-	if(iter_flag){
+	else if(iter_flag){
 
-		fft.Iterative_FFT();
+    TimeIt<FFTGenerator>(&FFTGenerator::Iterative_FFT, fft);
+
+		//fft.Iterative_FFT();
 
 		PrintIt(fft.getIterT(),"Iterative");
 	}
-	if(par_flag){
-		
-    fft.OPENMP_FFT();
+	else if(OMP_flag){
 
-    PrintIt(fft.getOpenMPT(),"OpenMp");
+   
+
+    std::cout << "Select number of threads:"<< std::endl;
+
+    int num_threads;
+
+    std::cin >>num_threads;
+
+    TimeIt<FFTGenerator>(&FFTGenerator::OPENMP_FFT, fft, num_threads);
+		
+    //fft.OPENMP_FFT(num_threads);
+
+    PrintIt(fft.getOpenMPT(),"OpenMp -- Please note the number of default threads is 2");
     
 	}
-	if(inv_flag){
+	else if(inv_flag){
+
+    TimeIt<FFTGenerator>(&FFTGenerator::Inverse_FFT, fft);
 		
-		fft.Inverse_FFT();
+		//fft.Inverse_FFT();
 
 		PrintIt(fft.getInvT(),"Inverse");
 	}
-	
-
-
-
-    return 0;
+  return 0;
 
 }
