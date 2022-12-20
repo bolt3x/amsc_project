@@ -16,7 +16,7 @@
 template<class C>
 void TimeIt(void (C::*func)(),
             C& obj,
-            std::ostream &out)
+            std::ostream &out = std::cout)
 {
     auto start = std::chrono::high_resolution_clock::now();
     (obj.*func)();
