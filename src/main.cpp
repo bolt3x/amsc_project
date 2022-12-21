@@ -39,9 +39,9 @@ int main(int argc, char **argv){
         break;
       case '?':
         if (optopt == 's')
-          fprintf (stderr, "Option -%s requires an argument.\n", static_cast<char>(optopt));
+          fprintf (stderr, "Option -%s requires an argument.\n", optopt);
         else if (isprint (optopt))
-          fprintf (stderr, "Unknown option `-%s'.\n", static_cast<char>(optopt));
+          fprintf (stderr, "Unknown option `-%s'.\n", optopt);
         else
           fprintf (stderr,
                    "Unknown option character `\\x%x'.\n",

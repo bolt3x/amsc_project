@@ -59,7 +59,7 @@ void MPI_FFT(std::vector<std::complex<double>> &x){
         return;
     }
 
-    if(N < size){
+    if((int)N < size){
         if(rank == 0)
         {
             std::cout << "Number signal elements have to be bigger than size. Exiting "<< std::endl;

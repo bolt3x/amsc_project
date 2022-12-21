@@ -8,7 +8,6 @@
 #include <functional>
 #include <random>
 #include <algorithm>
-#include <omp.h>
 
 inline constexpr unsigned N_STANDARD=150;
 
