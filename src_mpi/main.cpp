@@ -34,6 +34,8 @@ int main(int argc, char **argv){
       default:
         abort ();
 	}
+
+  unsigned int print(0);
 	
 	
 	// initializing MPI
@@ -50,8 +52,8 @@ int main(int argc, char **argv){
     if(rank == 0){
 
       if(!signal_file){
-        n = 8;
-        input.resize(8);
+        n = 256;
+        input.resize(n);
         input = RandomGen(n);
       }
 
@@ -59,14 +61,16 @@ int main(int argc, char **argv){
         std::string s(signal_file);
         ReadIt(s,input,n);
       }
-
-      PrintIt(input,"Input");
+      
+      if(print)
+        PrintIt(input,"Input");
 
     }
 
     MPI_FFT(input);
 
-    PrintIt(input,"MPI -- Please note the implementation is running on processors specified when lauched");
+    if(print)
+      PrintIt(input,"MPI -- Please note the implementation is running on processors specified when lauched");
 
     MPI_Finalize();
 

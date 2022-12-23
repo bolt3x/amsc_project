@@ -55,10 +55,11 @@ int main(int argc, char **argv){
 
   std::vector<std::complex<double>> input;
   size_t n;
+  unsigned int print(1);
   //--------------------
 
     if(!signal_file){
-      n = 32;
+      n = 1024;
       input.resize(n);
       input = RandomGen(n);
     }
@@ -67,8 +68,8 @@ int main(int argc, char **argv){
       std::string s(signal_file);
       ReadIt(s,input,n);
     }
-
-    PrintIt(input,"Input");
+    if(print)
+      PrintIt(input,"Input");
     FFTGenerator fft(input,n);
 
   //-------------------- 
@@ -83,7 +84,8 @@ int main(int argc, char **argv){
     
 		//fft.Recursive_FFT();
 
-		PrintIt(fft.getRecT(),"Recursive");
+    if(print)
+		  PrintIt(fft.getRecT(),"Recursive");
 	}
 	else if(iter_flag){
 
@@ -91,7 +93,9 @@ int main(int argc, char **argv){
 
 		//fft.Iterative_FFT();
 
-		PrintIt(fft.getIterT(),"Iterative");
+
+    if(print)
+		  PrintIt(fft.getIterT(),"Iterative");
 	}
 	else if(OMP_flag){
 
@@ -107,7 +111,8 @@ int main(int argc, char **argv){
 		
     //fft.OPENMP_FFT(num_threads);
 
-    PrintIt(fft.getOpenMPT(),"OpenMp -- Please note the number of default threads is 2");
+    if(print)
+      PrintIt(fft.getOpenMPT(),"OpenMp -- Please note the number of default threads is 2");
     
 	}
 	else if(inv_flag){
@@ -116,7 +121,9 @@ int main(int argc, char **argv){
 		
 		//fft.Inverse_FFT();
 
-		PrintIt(fft.getInvT(),"Inverse");
+
+    if(print)
+		  PrintIt(fft.getInvT(),"Inverse");
 	}
   return 0;
 

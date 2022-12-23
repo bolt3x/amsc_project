@@ -25,7 +25,9 @@ class FFTGenerator{
         m_n(N_STANDARD),
         m_signal(this->RandomGen()),
         m_rec(m_n,0.),
-        m_iter(m_n,0.)
+        m_iter(m_n,0.),
+        m_openmp(m_n,0.),
+        m_inv(m_n, 0.)
         {};
 
     // Partial constructor: just the dimension is given
@@ -33,7 +35,9 @@ class FFTGenerator{
         m_n(n),
         m_signal(this->RandomGen()),
         m_rec(n,0.),
-        m_iter(n,0.)
+        m_iter(n,0.),
+        m_openmp(n,0.),
+        m_inv(n, 0.)
         {};
 
     // Full constructor: both the input signal and the dimensions are given
@@ -41,7 +45,9 @@ class FFTGenerator{
         m_n(n),
         m_signal(signal),
         m_rec(n,0.),
-        m_iter(n,0.)
+        m_iter(n,0.),
+        m_openmp(n,0.),
+        m_inv(n, 0.)
         {};
 
     // Destructor
